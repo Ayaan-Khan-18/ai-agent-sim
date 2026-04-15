@@ -32,8 +32,6 @@ public class CalculatorTool implements Tool {
                 if (num2 == 0) return "Error: division by zero";
                 result = num1 / num2;
                 break;
-                result=num1/num2;
-                break;
             default:
                 return "Unsupported operator: "+op;    
         }
