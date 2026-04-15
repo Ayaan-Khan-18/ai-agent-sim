@@ -2,7 +2,7 @@ File structure:
 
 AIAgentProject/
 ├── src/
-│   └── main/java/com/aiagent/
+│   └── main/java/com/aiagent/ 
 │       ├── Main.java                    ← Entry point, CLI loop
 │       ├── agent/
 │       │   ├── Agent.java               ← Core agent (Composition hub)
