@@ -1,6 +1,10 @@
 package com.aiagent.tools;
 
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+
 public class CalculatorTool implements Tool {
+
     @Override
     public String getName() {
         return "calculator";
@@ -8,33 +12,29 @@ public class CalculatorTool implements Tool {
 
     @Override
     public String getDescription() {
-        return "Evaluates math expressions. Input format: '10 + 5'";
+        return "Evaluates math expressions. Input examples: '10 + 5', '10 * 10 * 10', '100 / 4'";
     }
-    
+
     @Override
     public String execute(String input) {
-        String[] parts=input.trim().split(" ");
-        double num1=Double.parseDouble(parts[0]);
-        double num2=Double.parseDouble(parts[2]);
-        String op=parts[1];
-        double result=0;
-        switch (op) {
-            case "+":
-                result=num1+num2;
-                break;
-            case "-":
-                result=num1-num2;
-                break;
-            case "*":
-                result=num1*num2;
-                break;
-            case "/":
-                if (num2 == 0) return "Error: division by zero";
-                result = num1 / num2;
-                break;
-            default:
-                return "Unsupported operator: "+op;    
+        try {
+            // remove any spaces and validate only safe characters
+            String expr = input.trim();
+            if (!expr.matches("[0-9+\\-*/.() ]+")) {
+                return "Error: Invalid expression '" + expr + "'. Only numbers and + - * / ( ) allowed.";
+            }
+
+            ScriptEngine engine = new ScriptEngineManager().getEngineByName("JavaScript");
+            Object result = engine.eval(expr);
+
+            double val = Double.parseDouble(result.toString());
+            if (val == Math.floor(val)) {
+                return String.valueOf((long) val);
+            }
+            return String.valueOf(val);
+
+        } catch (Exception e) {
+            return "Error evaluating expression: " + e.getMessage();
         }
-        return String.valueOf(result);
     }
 }

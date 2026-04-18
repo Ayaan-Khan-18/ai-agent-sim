@@ -42,27 +42,25 @@ public class GroqClient implements LLMClient {
 
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://api.groq.com/openai/v1/chat/completions"))
-                .header("Content-Type", "application/json")
-                .header("Authorization", "Bearer " + apiKey)
-                .timeout(java.time.Duration.ofSeconds(30))
-                .POST(HttpRequest.BodyPublishers.ofString(body.toString()))
-                .build();
+                    .uri(URI.create("https://api.groq.com/openai/v1/chat/completions"))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + apiKey)
+                    .timeout(java.time.Duration.ofSeconds(30))
+                    .POST(HttpRequest.BodyPublishers.ofString(body.toString()))
+                    .build();
 
             HttpResponse<String> response = client.send(
-                request, HttpResponse.BodyHandlers.ofString()
-            );
+                    request, HttpResponse.BodyHandlers.ofString());
 
-            System.out.println("DEBUG Groq response: " + response.body());
             JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
             if (json.has("error")) {
                 return "Groq API Error: " + json.getAsJsonObject("error")
-                .get("message").getAsString();
+                        .get("message").getAsString();
             }
             return json.getAsJsonArray("choices")
-                       .get(0).getAsJsonObject()
-                       .getAsJsonObject("message")
-                       .get("content").getAsString();
+                    .get(0).getAsJsonObject()
+                    .getAsJsonObject("message")
+                    .get("content").getAsString();
 
         } catch (Exception e) {
             e.printStackTrace();
