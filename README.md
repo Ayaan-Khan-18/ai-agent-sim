@@ -103,7 +103,12 @@ java -jar target/ai-agent.jar
 ### 4. Run — Web UI mode
 
 ```bash
-java -cp target/ai-agent.jar com.aiagent.AgentServer
+#1.HTML
+java -cp target/ai-agent.jar com.aiagent.AgentServer 
+
+#2.Terminal
+ java -jar target/ai-agent.jar
+
 ```
 
 Then open **http://localhost:8080** in your browser.
