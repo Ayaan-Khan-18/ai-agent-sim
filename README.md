@@ -9,21 +9,25 @@ Built as a Java OOP course project demonstrating core design patterns in a real,
 ## 🧠 How It Works
 
 ```
-User Input
+User types message
+        ↓
+   Agent.java (orchestrator)
+        ↓                    ↓
+  GroqClient            EventBus
+  (AI brain)            (logs events)
+        ↓
+  LLM Response
+        ↓
+  Contains "TOOL:"?
+    ↓           ↓
+   YES           NO
+    ↓           ↓
+ToolRegistry   return
+finds tool     response
     ↓
-Agent receives message
+Tool.execute()
     ↓
-LLMClient sends message to Ollama (local AI)
-    ↓
-LLM decides: "I need to use a tool"
-    ↓
-ToolCallParser extracts tool name + input
-    ↓
-ToolRegistry finds the right Tool
-    ↓
-Tool.execute() runs and returns result
-    ↓
-Result sent back to LLM → Final response to user
+return result
 ```
 
 ---
@@ -33,32 +37,36 @@ Result sent back to LLM → Final response to user
 ```
 AIAgentProject/
 ├── pom.xml
+├── .env                           ← API keys (never commit this!)
+├── .gitignore
 └── src/
     └── main/
-        └── java/
-            └── com/
-                └── aiagent/
-                    ├── Main.java                  ← Entry point, CLI loop
-                    ├── agent/
-                    │   ├── Agent.java             ← Core agent (Composition hub)
-                    │   ├── Memory.java            ← Conversation history
-                    │   └── AgentState.java        ← Enum: IDLE, THINKING, ACTING
-                    ├── llm/
-                    │   ├── LLMClient.java         ← Interface (abstraction)
-                    │   └── OllamaClient.java      ← Hits localhost:11434
-                    ├── tools/
-                    │   ├── Tool.java              ← Strategy Pattern interface
-                    │   ├── ToolRegistry.java      ← Singleton
-                    │   ├── CalculatorTool.java
-                    │   ├── FileReaderTool.java
-                    │   ├── WebCrawlerTool.java
-                    │   └── EmailSenderTool.java
-                    ├── observer/
-                    │   ├── AgentObserver.java     ← Observer Pattern interface
-                    │   ├── EventBus.java          ← Notifies all observers
-                    │   └── LoggerObserver.java    ← Logs state changes
-                    └── parser/
-                        └── ToolCallParser.java    ← Parses LLM output for tool calls
+        ├── java/
+        │   └── com/
+        │       └── aiagent/
+        │           ├── Main.java              ← CLI entry point
+        │           ├── AgentServer.java       ← Web UI entry point
+        │           ├── agent/
+        │           │   ├── Agent.java         ← Core agent (Composition hub)
+        │           │   └── Memory.java        ← Conversation history
+        │           ├── llm/
+        │           │   ├── LLMClient.java     ← Interface (abstraction)
+        │           │   ├── GroqClient.java    ← Groq cloud API
+        │           │   └── LMStudioClient.java← Local LLM (LM Studio)
+        │           ├── tools/
+        │           │   ├── Tool.java          ← Strategy Pattern interface
+        │           │   ├── ToolRegistry.java  ← Singleton
+        │           │   ├── CalculatorTool.java
+        │           │   ├── FileReaderTool.java
+        │           │   ├── WebCrawlerTool.java
+        │           │   └── EmailSenderTool.java
+        │           └── observer/
+        │               ├── AgentObserver.java ← Observer Pattern interface
+        │               ├── EventBus.java      ← Notifies all observers
+        │               └── LoggerObserver.java← Logs state changes
+        └── resources/
+            └── public/
+                └── index.html               ← Web dashboard UI
 ```
 
 ---
@@ -69,37 +77,54 @@ AIAgentProject/
 ### Prerequisites
 - Java 17+
 - Maven
-- [Ollama](https://ollama.com) installed and running locally
+- Groq API key (free at console.groq.com) OR LM Studio running locally
 
-### Pull a model in Ollama
-```bash
-ollama pull gemma3:9b
-# or
-ollama pull qwen2.5-coder:7b
+### 1. Set up `.env`
+
+Create a `.env` file in the project root:
+
+```env
+GROQ_API_KEY=your-groq-api-key-here
+GROQ_MODEL=llama-3.1-8b-instant
 ```
 
-### Build the project
+### 2. Build
+
 ```bash
-mvn compile
+mvn clean package -DskipTests
 ```
 
-### Run the agent
-```bash
-mvn exec:java -Dexec.mainClass="com.aiagent.Main"
-```
+### 3. Run — CLI mode
 
-Or build a JAR and run it:
 ```bash
-mvn package
 java -jar target/ai-agent.jar
 ```
 
----
+### 4. Run — Web UI mode
 
+```bash
+java -cp target/ai-agent.jar com.aiagent.AgentServer
+```
 
-## 📚 Dependencies
+Then open **http://localhost:8080** in your browser.
+
+```
+
+## 📦 Dependencies
 
 | Library | Version | Purpose |
 |---------|---------|---------|
-| Gson | 2.10.1 | Parse JSON responses from Ollama API |
+| Gson | 2.10.1 | Parse JSON from LLM APIs |
 | Jsoup | 1.17.2 | Fetch and parse HTML from web pages |
+| dotenv-java | 3.0.0 | Load `.env` file for API keys |
+| Javalin | 6.1.3 | Lightweight web server for dashboard |
+| slf4j-simple | 2.0.9 | Logging for Javalin |
+
+---
+
+## 🔐 Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `GROQ_API_KEY` | Your Groq API key from console.groq.com |
+| `GROQ_MODEL` | Model name e.g. `llama-3.1-8b-instant` |
