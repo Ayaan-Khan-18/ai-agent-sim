@@ -1,6 +1,6 @@
 # 🤖 AI Agent Workflow Manager
 
-A Java-based autonomous AI agent that uses a local LLM (via Ollama) as its "brain" and a set of pluggable tools as its "body". The agent receives user input, thinks using the LLM, and decides which tool to use to complete the task.
+A Java-based autonomous AI agent that uses the Groq LLM API as its "brain" and a set of pluggable tools as its "body". The agent receives user input, thinks using the LLM, and decides which tool to use to complete the task — including **sending real emails** via Gmail SMTP.
 
 Built as a Java OOP course project demonstrating core design patterns in a real, working system.
 
@@ -32,6 +32,20 @@ return result
 
 ---
 
+## 🎯 OOP Design Patterns Used
+
+| Pattern | Where | What It Does |
+|---------|-------|--------------|
+| **Strategy** | `Tool` interface + all tool classes | Each tool implements the same interface; Agent picks one at runtime |
+| **Singleton** | `ToolRegistry` | One shared registry instance across the app |
+| **Observer** | `EventBus` + `AgentObserver` + `LoggerObserver` | Agent publishes events, observers react independently |
+| **Composition** | `Agent` has-a `LLMClient`, `ToolRegistry`, `EventBus` | Agent is composed of parts, not inheriting from them |
+| **Encapsulation** | `EmailConfig`, `EmailMessage`, `Memory` | Private fields, controlled access via getters, validation in constructors |
+| **Abstraction** | `LLMClient` interface, `Tool` interface | Hide implementation details behind clean interfaces |
+| **Enum** | `AgentState` (IDLE, THINKING, ACTING) | Type-safe state machine for agent lifecycle |
+
+---
+
 ## 🏗️ Project Structure
 
 ```
@@ -48,9 +62,10 @@ AIAgentProject/
         │           ├── AgentServer.java       ← Web UI entry point
         │           ├── agent/
         │           │   ├── Agent.java         ← Core agent (Composition hub)
+        │           │   ├── AgentState.java    ← Enum (IDLE, THINKING, ACTING)
         │           │   └── Memory.java        ← Conversation history
         │           ├── llm/
-        │           │   ├── LLMClient.java     ← Interface (abstraction)
+        │           │   ├── LLMClient.java     ← Interface (Abstraction)
         │           │   ├── GroqClient.java    ← Groq cloud API
         │           │   └── LMStudioClient.java← Local LLM (LM Studio)
         │           ├── tools/
@@ -59,25 +74,29 @@ AIAgentProject/
         │           │   ├── CalculatorTool.java
         │           │   ├── FileReaderTool.java
         │           │   ├── WebCrawlerTool.java
-        │           │   └── EmailSenderTool.java
+        │           │   ├── EmailSenderTool.java ← Composition (uses EmailConfig + EmailMessage)
+        │           │   ├── EmailConfig.java     ← Encapsulation (SMTP settings)
+        │           │   └── EmailMessage.java    ← Encapsulation (email data + validation)
         │           └── observer/
         │               ├── AgentObserver.java ← Observer Pattern interface
         │               ├── EventBus.java      ← Notifies all observers
         │               └── LoggerObserver.java← Logs state changes
         └── resources/
             └── public/
-                └── index.html               ← Web dashboard UI
+                ├── index.html               ← Web dashboard UI
+                ├── styles.css               ← Dashboard styling
+                └── script.js                ← Dashboard logic
 ```
 
 ---
-
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 - Java 17+
 - Maven
-- Groq API key (free at console.groq.com) OR LM Studio running locally
+- Groq API key (free at [console.groq.com](https://console.groq.com))
+- Gmail account with 2FA enabled (for email tool)
 
 ### 1. Set up `.env`
 
@@ -86,7 +105,14 @@ Create a `.env` file in the project root:
 ```env
 GROQ_API_KEY=your-groq-api-key-here
 GROQ_MODEL=llama-3.1-8b-instant
+EMAIL_USER=your.email@gmail.com
+EMAIL_APP_PASSWORD=xxxx-xxxx-xxxx-xxxx
 ```
+
+> **Note:** To get a Gmail App Password, enable 2-Step Verification at
+> [myaccount.google.com/security](https://myaccount.google.com/security),
+> then generate an App Password at
+> [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords).
 
 ### 2. Build
 
@@ -103,17 +129,24 @@ java -jar target/ai-agent.jar
 ### 4. Run — Web UI mode
 
 ```bash
-#1.HTML
-java -cp target/ai-agent.jar com.aiagent.AgentServer 
-
-#2.Terminal
- java -jar target/ai-agent.jar
-
+java -cp target/ai-agent.jar com.aiagent.AgentServer
 ```
 
 Then open **http://localhost:8080** in your browser.
 
-```
+---
+
+## 💬 Example Prompts
+
+| Prompt | Tool Used |
+|--------|-----------|
+| `What is 2847 × 391?` | Calculator |
+| `Read the file config.txt` | FileReader |
+| `Crawl https://example.com and summarize` | WebCrawler |
+| `Send an email to hello@example.com about the quarterly report` | EmailSender |
+| `What tools do you have?` | None (direct LLM response) |
+
+---
 
 ## 📦 Dependencies
 
@@ -124,6 +157,7 @@ Then open **http://localhost:8080** in your browser.
 | dotenv-java | 3.0.0 | Load `.env` file for API keys |
 | Javalin | 6.1.3 | Lightweight web server for dashboard |
 | slf4j-simple | 2.0.9 | Logging for Javalin |
+| jakarta.mail | 2.0.1 | Send real emails via Gmail SMTP |
 
 ---
 
@@ -133,3 +167,5 @@ Then open **http://localhost:8080** in your browser.
 |----------|-------------|
 | `GROQ_API_KEY` | Your Groq API key from console.groq.com |
 | `GROQ_MODEL` | Model name e.g. `llama-3.1-8b-instant` |
+| `EMAIL_USER` | Gmail address used to send emails |
+| `EMAIL_APP_PASSWORD` | Gmail App Password (requires 2FA enabled) |
