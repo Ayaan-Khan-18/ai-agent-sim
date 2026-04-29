@@ -115,7 +115,7 @@ public class CalculatorTool implements Tool {
         // Parse number
         int start = pos;
         while (pos < expression.length() &&
-               (Character.isDigit(expression.charAt(pos)) || expression.charAt(pos) == '.')) {
+                (Character.isDigit(expression.charAt(pos)) || expression.charAt(pos) == '.')) {
             pos++;
         }
         if (start == pos) {

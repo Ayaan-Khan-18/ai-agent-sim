@@ -100,10 +100,10 @@ function updateMetrics() {
 
 // ── Tool detection ──
 const toolMap = {
-  calculator:  'tool-calculator',
-  filereader:  'tool-filereader',
-  webcrawler:  'tool-webcrawler',
-  emailsender: 'tool-emailsender',
+  calculator:    'tool-calculator',
+  file_reader:   'tool-filereader',
+  web_crawler:   'tool-webcrawler',
+  email_sender:  'tool-emailsender',
 };
 function detectTool(evText) {
   const lower = evText.toLowerCase();

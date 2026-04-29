@@ -1,230 +1,242 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Agent Workflow Manager</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Agent Workflow Manager</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
 
-<!-- ── HEADER ── -->
-<header>
-  <div class="header-brand">
-    <div class="logo"></div>
-    <div class="brand-text">
-      <h1>AI Agent <em>Workflow</em> Manager</h1>
-      <p>autonomous · tool-enabled · stateful</p>
-    </div>
-  </div>
-  <div class="header-right">
-    <div class="pill">turns <span class="val" id="hTurns">0</span></div>
-    <div class="pill">tools <span class="val" id="hTools">0</span></div>
-    <div class="pill">events <span class="val" id="hEvents">0</span></div>
-    <div class="online-badge"><div class="dot"></div>online</div>
-    <div class="speed-control">
-      <span class="speed-label">speed</span>
-      <input type="range" id="speedSlider" class="speed-slider" min="50" max="800" value="130" title="Event display speed">
-      <span class="speed-value" id="speedValue">130ms</span>
-    </div>
-    <button class="theme-toggle" id="themeToggle" title="Toggle dark/light mode">🌙</button>
-  </div>
-</header>
-
-<!-- ── WORKSPACE ── -->
-<div class="workspace">
-
-  <!-- LEFT SIDEBAR -->
-  <aside class="sidebar">
-    <div class="sidebar-section">
-      <div class="sidebar-label">Available Tools</div>
-
-      <div class="tool-card" id="tool-calculator">
-        <div class="tool-icon">🧮</div>
-        <div class="tool-info">
-          <div class="tool-name">Calculator</div>
-          <div class="tool-desc">math &amp; compute</div>
-        </div>
-        <div class="tool-led"></div>
-      </div>
-
-      <div class="tool-card" id="tool-filereader">
-        <div class="tool-icon">📄</div>
-        <div class="tool-info">
-          <div class="tool-name">FileReader</div>
-          <div class="tool-desc">read &amp; parse</div>
-        </div>
-        <div class="tool-led"></div>
-      </div>
-
-      <div class="tool-card" id="tool-webcrawler">
-        <div class="tool-icon">🌐</div>
-        <div class="tool-info">
-          <div class="tool-name">WebCrawler</div>
-          <div class="tool-desc">fetch &amp; crawl</div>
-        </div>
-        <div class="tool-led"></div>
-      </div>
-
-      <div class="tool-card" id="tool-emailsender">
-        <div class="tool-icon">📧</div>
-        <div class="tool-info">
-          <div class="tool-name">EmailSender</div>
-          <div class="tool-desc">compose &amp; send</div>
-        </div>
-        <div class="tool-led"></div>
+  <!-- ── HEADER ── -->
+  <header>
+    <div class="header-brand">
+      <div class="logo"></div>
+      <div class="brand-text">
+        <h1>AI Agent <em>Workflow</em> Manager</h1>
+        <p>autonomous · tool-enabled · stateful</p>
       </div>
     </div>
+    <div class="header-right">
+      <div class="pill">turns <span class="val" id="hTurns">0</span></div>
+      <div class="pill">tools <span class="val" id="hTools">0</span></div>
+      <div class="pill">events <span class="val" id="hEvents">0</span></div>
+      <div class="online-badge">
+        <div class="dot"></div>online
+      </div>
+      <div class="speed-control">
+        <span class="speed-label">speed</span>
+        <input type="range" id="speedSlider" class="speed-slider" min="50" max="800" value="130"
+          title="Event display speed">
+        <span class="speed-value" id="speedValue">130ms</span>
+      </div>
+      <button class="theme-toggle" id="themeToggle" title="Toggle dark/light mode">🌙</button>
+    </div>
+  </header>
 
-    <div class="sidebar-section" style="flex:1">
-      <div class="sidebar-label">Quick Prompts</div>
-      <button class="quick-btn" onclick="quickSend('Calculate 2847 * 391')">
-        <span class="arrow">›</span> tip calculator
-      </button>
-      <button class="quick-btn" onclick="quickSend('Crawl https://wikipedia.org/ and summarize')">
-        <span class="arrow">›</span> crawl a site
-      </button>
-      <button class="quick-btn" onclick="quickSend('Read the file /home/ayaank/Documents/AIAgentProject/README.md')">
-        <span class="arrow">›</span> read a file
-      </button>
-      <!-- <button class="quick-btn" onclick="quickSend('What tools do you have?')">
+  <!-- ── WORKSPACE ── -->
+  <div class="workspace">
+
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Available Tools</div>
+
+        <div class="tool-card" id="tool-calculator">
+          <div class="tool-icon">🧮</div>
+          <div class="tool-info">
+            <div class="tool-name">Calculator</div>
+            <div class="tool-desc">math &amp; compute</div>
+          </div>
+          <div class="tool-led"></div>
+        </div>
+
+        <div class="tool-card" id="tool-filereader">
+          <div class="tool-icon">📄</div>
+          <div class="tool-info">
+            <div class="tool-name">FileReader</div>
+            <div class="tool-desc">read &amp; parse</div>
+          </div>
+          <div class="tool-led"></div>
+        </div>
+
+        <div class="tool-card" id="tool-webcrawler">
+          <div class="tool-icon">🌐</div>
+          <div class="tool-info">
+            <div class="tool-name">WebCrawler</div>
+            <div class="tool-desc">fetch &amp; crawl</div>
+          </div>
+          <div class="tool-led"></div>
+        </div>
+
+        <div class="tool-card" id="tool-emailsender">
+          <div class="tool-icon">📧</div>
+          <div class="tool-info">
+            <div class="tool-name">EmailSender</div>
+            <div class="tool-desc">compose &amp; send</div>
+          </div>
+          <div class="tool-led"></div>
+        </div>
+      </div>
+
+      <div class="sidebar-section" style="flex:1">
+        <div class="sidebar-label">Quick Prompts</div>
+        <button class="quick-btn" onclick="quickSend('Calculate 2847 * 391')">
+          <span class="arrow">›</span> tip calculator
+        </button>
+        <button class="quick-btn" onclick="quickSend('Crawl https://wikipedia.org/ and summarize')">
+          <span class="arrow">›</span> crawl a site
+        </button>
+        <button class="quick-btn" onclick="quickSend('Read the file /home/ayaank/Documents/AIAgentProject/README.md')">
+          <span class="arrow">›</span> read a file
+        </button>
+        <!-- <button class="quick-btn" onclick="quickSend('What tools do you have?')">
         <span class="arrow">›</span> capabilities
       </button> -->
-      <button class="quick-btn" onclick="quickSend('Send an email to ayaan.khan24@vit.edu about the quarterly report')">
-        <span class="arrow">›</span> send email
-      </button>
-    </div>
-  </aside>
-
-  <!-- CHAT PANEL -->
-  <div class="chat-panel">
-    <div class="messages" id="messages">
-      <div class="message agent">
-        <div class="avatar">AI</div>
-        <div class="bubble-wrap">
-          <div class="bubble-meta">Agent · now</div>
-          <div class="bubble">
-            Hello! I'm your autonomous AI agent with access to four tools:
-            <strong>Calculator</strong>, <strong>FileReader</strong>,
-            <strong>WebCrawler</strong>, and <strong>EmailSender</strong>.<br><br>
-            What would you like me to work on today?
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="suggestions" id="suggestions">
-      <div class="chip" onclick="quickSend('What is 2847 * 391?')">2847 × 391</div>
-      <!-- <div class="chip" onclick="quickSend('Explain your capabilities in detail')">capabilities</div> -->
-      <div class="chip" onclick="quickSend('Read the file /home/ayaank/Documents/AIAgentProject/README.md')">read README.md</div>
-      <div class="chip" onclick="quickSend('Crawl https://wikipedia.org/')">crawl wikipedia.org</div>
-      <div class="chip" onclick="quickSend('Send a status email')">send email</div>
-    </div>
-
-    <div class="input-area">
-      <div class="input-row">
-        <div class="textarea-wrap">
-          <textarea id="userInput" placeholder="Type a task for the agent… (Enter to send, Shift+Enter for newline)" rows="1"></textarea>
-        </div>
-        <button class="send-btn" id="sendBtn" onclick="sendMessage()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="22" y1="2" x2="11" y2="13"></line>
-            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-          </svg>
+        <button class="quick-btn"
+          onclick="quickSend('Send an email to ayaan.khan24@vit.edu about the quarterly report')">
+          <span class="arrow">›</span> send email
         </button>
       </div>
-      <div class="input-hint">⏎ send &nbsp;·&nbsp; ⇧⏎ newline &nbsp;·&nbsp; state machine &amp; memory in right panel →</div>
+    </aside>
+
+    <!-- CHAT PANEL -->
+    <div class="chat-panel">
+      <div class="messages" id="messages">
+        <div class="message agent">
+          <div class="avatar">AI</div>
+          <div class="bubble-wrap">
+            <div class="bubble-meta">Agent · now</div>
+            <div class="bubble">
+              Hello! I'm your autonomous AI agent with access to four tools:
+              <strong>Calculator</strong>, <strong>FileReader</strong>,
+              <strong>WebCrawler</strong>, and <strong>EmailSender</strong>.<br><br>
+              What would you like me to work on today?
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="suggestions" id="suggestions">
+        <div class="chip" onclick="quickSend('What is 2847 * 391?')">2847 × 391</div>
+        <!-- <div class="chip" onclick="quickSend('Explain your capabilities in detail')">capabilities</div> -->
+        <div class="chip" onclick="quickSend('Read the file /home/ayaank/Documents/AIAgentProject/README.md')">read
+          README.md</div>
+        <div class="chip" onclick="quickSend('Crawl https://wikipedia.org/')">crawl wikipedia.org</div>
+        <div class="chip" onclick="quickSend('Send a status email')">send email</div>
+      </div>
+
+      <div class="input-area">
+        <div class="input-row">
+          <div class="textarea-wrap">
+            <textarea id="userInput" placeholder="Type a task for the agent… (Enter to send, Shift+Enter for newline)"
+              rows="1"></textarea>
+          </div>
+          <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"
+              stroke-linejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+          </button>
+        </div>
+        <div class="input-hint">⏎ send &nbsp;·&nbsp; ⇧⏎ newline &nbsp;·&nbsp; state machine &amp; memory in right panel
+          →</div>
+      </div>
     </div>
+
+    <!-- RIGHT PANEL -->
+    <aside class="right-panel">
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('events', this)">Events</div>
+        <div class="tab" onclick="switchTab('state', this)">State</div>
+        <div class="tab" onclick="switchTab('memory', this)">Memory</div>
+      </div>
+
+      <div class="tab-content">
+
+        <!-- EVENTS TAB -->
+        <div class="tab-pane active" id="tab-events">
+          <div class="log-toolbar">
+            <span class="log-count" id="logCount">0 events</span>
+            <button class="clear-btn" onclick="clearEvents()">clear</button>
+          </div>
+          <div class="events-log" id="eventsLog">
+            <div class="empty-state" id="emptyEvents">
+              <div class="empty-icon">⚡</div>
+              <div class="empty-text">Agent events will<br>stream here in real time</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STATE TAB -->
+        <div class="tab-pane" id="tab-state">
+          <div class="state-pane">
+            <div>
+              <div class="pane-label">State Machine</div>
+              <div class="state-machine">
+                <div class="state-flow">
+                  <div class="state-node idle-n is-active" id="sn-idle">IDLE</div>
+                  <div class="state-arrow">→</div>
+                  <div class="state-node think-n" id="sn-think">THINK</div>
+                  <div class="state-arrow">→</div>
+                  <div class="state-node act-n" id="sn-act">ACT</div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div class="pane-label">Session Metrics</div>
+              <div class="metrics">
+                <div class="metric">
+                  <div class="metric-val" id="mTurns">0</div>
+                  <div class="metric-label">turns</div>
+                </div>
+                <div class="metric">
+                  <div class="metric-val" id="mTools">0</div>
+                  <div class="metric-label">tool calls</div>
+                </div>
+                <div class="metric">
+                  <div class="metric-val" id="mEvents">0</div>
+                  <div class="metric-label">events</div>
+                </div>
+                <div class="metric">
+                  <div class="metric-val" id="mState" style="font-size:14px;padding-top:6px">IDLE</div>
+                  <div class="metric-label">current state</div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div class="pane-label">Last Tool Used</div>
+              <div class="last-tool-card" id="lastToolCard">
+                <span style="font-size:18px">🔧</span>
+                <span id="lastToolText">None yet</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MEMORY TAB -->
+        <div class="tab-pane" id="tab-memory">
+          <div class="memory-pane" id="memoryPane">
+            <div class="empty-state">
+              <div class="empty-icon">🧠</div>
+              <div class="empty-text">Conversation memory<br>appears after first message</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
   </div>
 
-  <!-- RIGHT PANEL -->
-  <aside class="right-panel">
-    <div class="tabs">
-      <div class="tab active" onclick="switchTab('events', this)">Events</div>
-      <div class="tab" onclick="switchTab('state', this)">State</div>
-      <div class="tab" onclick="switchTab('memory', this)">Memory</div>
-    </div>
-
-    <div class="tab-content">
-
-      <!-- EVENTS TAB -->
-      <div class="tab-pane active" id="tab-events">
-        <div class="log-toolbar">
-          <span class="log-count" id="logCount">0 events</span>
-          <button class="clear-btn" onclick="clearEvents()">clear</button>
-        </div>
-        <div class="events-log" id="eventsLog">
-          <div class="empty-state" id="emptyEvents">
-            <div class="empty-icon">⚡</div>
-            <div class="empty-text">Agent events will<br>stream here in real time</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- STATE TAB -->
-      <div class="tab-pane" id="tab-state">
-        <div class="state-pane">
-          <div>
-            <div class="pane-label">State Machine</div>
-            <div class="state-machine">
-              <div class="state-flow">
-                <div class="state-node idle-n is-active" id="sn-idle">IDLE</div>
-                <div class="state-arrow">→</div>
-                <div class="state-node think-n" id="sn-think">THINK</div>
-                <div class="state-arrow">→</div>
-                <div class="state-node act-n" id="sn-act">ACT</div>
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <div class="pane-label">Session Metrics</div>
-            <div class="metrics">
-              <div class="metric">
-                <div class="metric-val" id="mTurns">0</div>
-                <div class="metric-label">turns</div>
-              </div>
-              <div class="metric">
-                <div class="metric-val" id="mTools">0</div>
-                <div class="metric-label">tool calls</div>
-              </div>
-              <div class="metric">
-                <div class="metric-val" id="mEvents">0</div>
-                <div class="metric-label">events</div>
-              </div>
-              <div class="metric">
-                <div class="metric-val" id="mState" style="font-size:14px;padding-top:6px">IDLE</div>
-                <div class="metric-label">current state</div>
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <div class="pane-label">Last Tool Used</div>
-            <div class="last-tool-card" id="lastToolCard">
-              <span style="font-size:18px">🔧</span>
-              <span id="lastToolText">None yet</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- MEMORY TAB -->
-      <div class="tab-pane" id="tab-memory">
-        <div class="memory-pane" id="memoryPane">
-          <div class="empty-state">
-            <div class="empty-icon">🧠</div>
-            <div class="empty-text">Conversation memory<br>appears after first message</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </aside>
-</div>
-
-<script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
+
 </html>

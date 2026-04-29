@@ -69,7 +69,8 @@ public class AgentServer {
             }
             result.add("events", events);
 
-            ctx.json(result.toString());
+            ctx.contentType("application/json");
+            ctx.result(result.toString());
         });
 
         System.out.println("Agent UI running at http://localhost:8080");
