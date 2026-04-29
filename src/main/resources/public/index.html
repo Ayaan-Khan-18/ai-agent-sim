@@ -1,376 +1,1212 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Agent Workflow Manager</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            background: #0a0a0f;
-            color: #e0e0e0;
-            font-family: 'Courier New', monospace;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Agent Workflow Manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-        header {
-            background: #111118;
-            border-bottom: 1px solid #2a2a4a;
-            padding: 16px 24px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+<style>
+:root[data-theme="dark"] {
+  --bg:      #07090f;
+  --bg2:     #0c0f1a;
+  --bg3:     #111525;
+  --bg4:     #171c2e;
+  --border:  rgba(80,110,255,0.14);
+  --border2: rgba(80,110,255,0.28);
+  --accent:  #5f7cff;
+  --accent2: #a0b4ff;
+  --green:   #1fd6a0;
+  --amber:   #f5a623;
+  --red:     #ff6b6b;
+  --blue:    #60b4fa;
+  --purple:  #c084fc;
+  --text:    #dde3f0;
+  --muted:   #556080;
+  --muted2:  #7a8aad;
+  --mono:    'IBM Plex Mono', monospace;
+  --sans:    'Syne', sans-serif;
+  --radius:  5px;
+  --radius-lg: 10px;
+}
 
-        header h1 {
-            font-size: 18px;
-            color: #7c6af7;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
+:root[data-theme="light"] {
+  --bg:      #fafbfc;
+  --bg2:     #f3f4f7;
+  --bg3:     #e8eaef;
+  --bg4:     #dfe2eb;
+  --border:  rgba(30,60,140,0.14);
+  --border2: rgba(30,60,140,0.28);
+  --accent:  #2563eb;
+  --accent2: #3b82f6;
+  --green:   #059669;
+  --amber:   #d97706;
+  --red:     #dc2626;
+  --blue:    #0284c7;
+  --purple:  #7c3aed;
+  --text:    #1f2937;
+  --muted:   #6b7280;
+  --muted2:  #4b5563;
+  --mono:    'IBM Plex Mono', monospace;
+  --sans:    'Syne', sans-serif;
+  --radius:  5px;
+  --radius-lg: 10px;
+}
 
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: #22c55e;
-            box-shadow: 0 0 8px #22c55e;
-            animation: pulse 2s infinite;
-        }
+:root {
+  --bg:      #07090f;
+  --bg2:     #0c0f1a;
+  --bg3:     #111525;
+  --bg4:     #171c2e;
+  --border:  rgba(80,110,255,0.14);
+  --border2: rgba(80,110,255,0.28);
+  --accent:  #5f7cff;
+  --accent2: #a0b4ff;
+  --green:   #1fd6a0;
+  --amber:   #f5a623;
+  --red:     #ff6b6b;
+  --blue:    #60b4fa;
+  --purple:  #c084fc;
+  --text:    #dde3f0;
+  --muted:   #556080;
+  --muted2:  #7a8aad;
+  --mono:    'IBM Plex Mono', monospace;
+  --sans:    'Syne', sans-serif;
+  --radius:  5px;
+  --radius-lg: 10px;
+}
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
-        }
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
-        .main {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
+html, body { height:100%; overflow:hidden; }
 
-        /* Left — chat */
-        .chat-panel {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            border-right: 1px solid #2a2a4a;
-        }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
 
-        .messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
+/* ── HEADER ── */
+header {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 0 28px;
+  height: 62px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  z-index: 20;
+}
 
-        .message {
-            max-width: 80%;
-            padding: 12px 16px;
-            border-radius: 8px;
-            line-height: 1.5;
-            font-size: 14px;
-            animation: fadeIn 0.3s ease;
-        }
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+.logo {
+  width: 36px; height: 36px;
+  border: 1.5px solid var(--accent);
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.logo::before {
+  content: '';
+  position: absolute;
+  width: 14px; height: 14px;
+  background: var(--accent);
+  border-radius: 3px;
+  animation: logoSpin 5s linear infinite;
+}
+.logo::after {
+  content: '';
+  position: absolute;
+  width: 6px; height: 6px;
+  background: var(--bg2);
+  border-radius: 50%;
+  z-index: 1;
+}
+@keyframes logoSpin {
+  0%   { transform: rotate(0deg); opacity:.9; }
+  50%  { opacity:.3; }
+  100% { transform: rotate(360deg); opacity:.9; }
+}
 
-        .message.user {
-            background: #1e1e3a;
-            border: 1px solid #3a3a6a;
-            align-self: flex-end;
-            color: #a0a0ff;
-        }
+.brand-text h1 {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: .5px;
+  line-height: 1.1;
+}
+.brand-text h1 em { font-style: normal; color: var(--accent2); }
+.brand-text p {
+  font-size: 11px;
+  color: var(--muted);
+  font-family: var(--mono);
+  margin-top: 2px;
+  letter-spacing: .5px;
+}
 
-        .message.agent {
-            background: #0f1a0f;
-            border: 1px solid #1a4a1a;
-            align-self: flex-start;
-            color: #a0ffa0;
-        }
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 
-        .message .label {
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 6px;
-            opacity: 0.6;
-        }
+.pill {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 5px 13px;
+  font-size: 12px;
+  font-family: var(--mono);
+  color: var(--muted2);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.pill .val { color: var(--accent2); font-weight: 600; }
 
-        .input-area {
-            padding: 16px 24px;
-            border-top: 1px solid #2a2a4a;
-            display: flex;
-            gap: 12px;
-        }
+.online-badge {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(31,214,160,.08);
+  border: 1px solid rgba(31,214,160,.22);
+  border-radius: 20px;
+  padding: 5px 13px;
+  font-size: 12px;
+  font-family: var(--mono);
+  color: var(--green);
+}
 
-        input[type="text"] {
-            flex: 1;
-            background: #111118;
-            border: 1px solid #2a2a4a;
-            border-radius: 6px;
-            padding: 12px 16px;
-            color: #e0e0e0;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            outline: none;
-            transition: border-color 0.2s;
-        }
+.theme-toggle {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 18px;
+  transition: all .2s;
+  color: var(--text);
+}
+.theme-toggle:hover {
+  border-color: var(--border2);
+  background: var(--bg4);
+}
+.dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: pulse 2.2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity:1; transform:scale(1); }
+  50%      { opacity:.35; transform:scale(.75); }
+}
 
-        input[type="text"]:focus {
-            border-color: #7c6af7;
-        }
+/* ── LAYOUT ── */
+.workspace {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
 
-        button {
-            background: #7c6af7;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 12px 24px;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
+/* ── LEFT SIDEBAR ── */
+.sidebar {
+  width: 220px;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
 
-        button:hover { background: #6a58e0; }
-        button:disabled { background: #3a3a4a; cursor: not-allowed; }
+.sidebar-section {
+  padding: 18px 16px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-section:last-child { border-bottom: none; }
 
-        /* Right — agent activity */
-        .activity-panel {
-            width: 380px;
-            display: flex;
-            flex-direction: column;
-        }
+.sidebar-label {
+  font-size: 10px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-family: var(--mono);
+  margin-bottom: 12px;
+}
 
-        .activity-header {
-            padding: 16px 20px;
-            border-bottom: 1px solid #2a2a4a;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: #7c6af7;
-        }
+/* Tool Cards */
+.tool-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  margin-bottom: 7px;
+  cursor: pointer;
+  transition: border-color .2s, background .2s, transform .15s;
+  position: relative;
+  overflow: hidden;
+}
+.tool-card:last-child { margin-bottom: 0; }
+.tool-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 40%, rgba(95,124,255,.06) 100%);
+  opacity: 0;
+  transition: opacity .2s;
+}
+.tool-card:hover { border-color: var(--border2); transform: translateX(2px); }
+.tool-card:hover::before { opacity: 1; }
 
-        .events {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
+.tool-card.firing {
+  border-color: rgba(245,166,35,.45) !important;
+  background: rgba(245,166,35,.08);
+  animation: toolPulse .5s ease;
+}
+@keyframes toolPulse {
+  0%   { transform: translateX(0) scale(1); }
+  40%  { transform: translateX(4px) scale(1.02); }
+  100% { transform: translateX(2px) scale(1); }
+}
 
-        .event {
-            padding: 10px 14px;
-            border-radius: 6px;
-            font-size: 12px;
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            animation: fadeIn 0.2s ease;
-        }
+.tool-icon {
+  width: 32px; height: 32px;
+  background: var(--bg4);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+  transition: border-color .2s;
+}
+.tool-card.firing .tool-icon { border-color: var(--amber); }
 
-        .event.thinking {
-            background: #1a1a2e;
-            border-left: 3px solid #7c6af7;
-            color: #a0a0ff;
-        }
+.tool-info { flex: 1; min-width: 0; }
+.tool-name  { font-size: 13px; font-weight: 600; color: var(--text); }
+.tool-desc  { font-size: 10px; color: var(--muted); font-family: var(--mono); margin-top: 1px; }
 
-        .event.acting {
-            background: #1a2a1a;
-            border-left: 3px solid #22c55e;
-            color: #a0ffa0;
-        }
+.tool-led {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--muted);
+  flex-shrink: 0;
+  transition: background .3s;
+}
+.tool-card.firing .tool-led { background: var(--amber); box-shadow: 0 0 6px var(--amber); }
 
-        .event.tool {
-            background: #2a1a0a;
-            border-left: 3px solid #f59e0b;
-            color: #fcd34d;
-        }
+/* Quick prompts */
+.quick-btn {
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 9px 12px;
+  color: var(--muted2);
+  font-family: var(--mono);
+  font-size: 11px;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  transition: all .15s;
+}
+.quick-btn:last-child { margin-bottom: 0; }
+.quick-btn span.arrow { color: var(--accent); font-size: 13px; }
+.quick-btn:hover { border-color: var(--accent); color: var(--accent2); background: rgba(95,124,255,.06); }
 
-        .event.user {
-            background: #1a1a2e;
-            border-left: 3px solid #60a5fa;
-            color: #93c5fd;
-        }
+/* ── CHAT ── */
+.chat-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
 
-        .event.idle {
-            background: #1a1a1a;
-            border-left: 3px solid #6b7280;
-            color: #9ca3af;
-        }
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 28px 28px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.messages::-webkit-scrollbar { width: 4px; }
+.messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
-        .event-icon { font-size: 16px; flex-shrink: 0; }
+.message {
+  display: flex;
+  gap: 14px;
+  animation: msgIn .3s cubic-bezier(.22,.68,0,1.2);
+}
+.message.user { flex-direction: row-reverse; }
+@keyframes msgIn {
+  from { opacity:0; transform: translateY(12px) scale(.98); }
+  to   { opacity:1; transform: translateY(0) scale(1); }
+}
 
-        .thinking-indicator {
-            display: none;
-            padding: 10px 14px;
-            background: #1a1a2e;
-            border-left: 3px solid #7c6af7;
-            border-radius: 6px;
-            color: #a0a0ff;
-            font-size: 12px;
-            align-items: center;
-            gap: 10px;
-        }
+.avatar {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 4px;
+  letter-spacing: .5px;
+}
+.message.user  .avatar { background: rgba(95,124,255,.18); color: var(--accent2); border: 1px solid rgba(95,124,255,.3); }
+.message.agent .avatar { background: rgba(31,214,160,.12); color: var(--green); border: 1px solid rgba(31,214,160,.25); }
 
-        .thinking-indicator.visible {
-            display: flex;
-        }
+.bubble-wrap { max-width: 74%; }
+.bubble-meta {
+  font-size: 11px;
+  font-family: var(--mono);
+  color: var(--muted);
+  margin-bottom: 6px;
+  letter-spacing: .5px;
+}
+.message.user .bubble-meta { text-align: right; }
 
-        .dots span {
-            animation: blink 1.2s infinite;
-            opacity: 0;
-        }
-        .dots span:nth-child(2) { animation-delay: 0.2s; }
-        .dots span:nth-child(3) { animation-delay: 0.4s; }
+.bubble {
+  padding: 15px 18px;
+  border-radius: var(--radius-lg);
+  font-size: 15px;
+  line-height: 1.7;
+  word-break: break-word;
+}
+.message.user  .bubble {
+  background: rgba(95,124,255,.1);
+  border: 1px solid rgba(95,124,255,.22);
+  color: #c4d0ff;
+  border-top-right-radius: 4px;
+}
+.message.agent .bubble {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-top-left-radius: 4px;
+}
+.bubble strong { color: var(--accent2); }
 
-        @keyframes blink {
-            0%, 100% { opacity: 0; }
-            50% { opacity: 1; }
-        }
+/* Typing indicator */
+.typing-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 16px 18px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  border-top-left-radius: 4px;
+  width: fit-content;
+}
+.typing-dot {
+  width: 7px; height: 7px;
+  background: var(--accent);
+  border-radius: 50%;
+  animation: bounce 1.2s ease-in-out infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: .16s; }
+.typing-dot:nth-child(3) { animation-delay: .32s; }
+@keyframes bounce {
+  0%,100% { transform: translateY(0); opacity:.35; }
+  50%      { transform: translateY(-6px); opacity:1; }
+}
 
-        .empty-state {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #3a3a5a;
-            font-size: 13px;
-            text-align: center;
-            padding: 24px;
-        }
-    </style>
+/* Suggestions */
+.suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  padding: 0 28px 14px;
+}
+.chip {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-family: var(--mono);
+  color: var(--muted2);
+  cursor: pointer;
+  transition: all .15s;
+}
+.chip:hover { border-color: var(--accent); color: var(--accent2); background: rgba(95,124,255,.07); }
+
+/* Input Area */
+.input-area {
+  padding: 16px 28px 20px;
+  border-top: 1px solid var(--border);
+  background: var(--bg2);
+}
+
+.input-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+.textarea-wrap { flex: 1; position: relative; }
+
+textarea {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 13px 18px;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.55;
+  outline: none;
+  resize: none;
+  min-height: 50px;
+  max-height: 130px;
+  transition: border-color .2s;
+}
+textarea:focus { border-color: var(--accent); }
+textarea::placeholder { color: var(--muted); }
+
+.send-btn {
+  width: 50px; height: 50px;
+  background: var(--accent);
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all .15s;
+}
+.send-btn:hover   { background: #7090ff; transform: scale(1.05); }
+.send-btn:active  { transform: scale(.96); }
+.send-btn:disabled { background: var(--bg4); cursor: not-allowed; transform: none; }
+.send-btn svg { width: 20px; height: 20px; }
+
+.input-hint {
+  font-size: 11px;
+  color: var(--muted);
+  font-family: var(--mono);
+  margin-top: 9px;
+  letter-spacing: .3px;
+}
+
+/* ── RIGHT PANEL ── */
+.right-panel {
+  width: 340px;
+  background: var(--bg2);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  padding: 0 4px;
+}
+.tab {
+  flex: 1;
+  padding: 15px 4px;
+  font-size: 11px;
+  font-family: var(--mono);
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  text-align: center;
+  cursor: pointer;
+  color: var(--muted);
+  border-bottom: 2px solid transparent;
+  transition: all .15s;
+  margin-bottom: -1px;
+}
+.tab:hover  { color: var(--muted2); }
+.tab.active { color: var(--accent2); border-bottom-color: var(--accent); }
+
+.tab-content { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+.tab-pane    { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+.tab-pane.active { display: flex; }
+
+/* Events log */
+.events-log {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.events-log::-webkit-scrollbar { width: 3px; }
+.events-log::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.event {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  font-size: 12px;
+  font-family: var(--mono);
+  line-height: 1.55;
+  animation: eventIn .22s ease;
+}
+@keyframes eventIn {
+  from { opacity:0; transform: translateX(10px); }
+  to   { opacity:1; transform: translateX(0); }
+}
+
+.event.thinking { background: rgba(95,124,255,.07); border-color: rgba(95,124,255,.2); color: #a5b4fc; }
+.event.acting   { background: rgba(31,214,160,.07); border-color: rgba(31,214,160,.2); color: #6ee7b7; }
+.event.tool     { background: rgba(245,166,35,.07); border-color: rgba(245,166,35,.2);  color: #fcd34d; }
+.event.user_ev  { background: rgba(96,180,250,.07); border-color: rgba(96,180,250,.2);  color: #93c5fd; }
+.event.result   { background: rgba(31,214,160,.05); border-color: rgba(31,214,160,.15); color: #a7f3d0; }
+.event.idle     { background: rgba(85,96,128,.07); border-color: rgba(85,96,128,.18);   color: var(--muted2); }
+
+.event-ico {
+  width: 22px; height: 22px;
+  border-radius: 5px;
+  background: rgba(255,255,255,.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+.event-body { flex: 1; min-width: 0; }
+.event-text { word-break: break-word; }
+.event-time { font-size: 10px; opacity: .45; margin-top: 2px; }
+
+/* Terminal-style log (clear button) */
+.log-toolbar {
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.log-count { font-size: 11px; font-family: var(--mono); color: var(--muted); }
+.clear-btn {
+  font-size: 10px; font-family: var(--mono);
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 3px 9px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.clear-btn:hover { color: var(--red); border-color: rgba(255,107,107,.35); }
+
+.empty-state {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+  padding: 24px;
+  text-align: center;
+}
+.empty-icon { font-size: 30px; opacity: .25; }
+.empty-text { font-size: 12px; font-family: var(--mono); color: var(--muted); line-height: 1.7; }
+
+/* ── STATE TAB ── */
+.state-pane { padding: 18px; display: flex; flex-direction: column; gap: 18px; overflow-y: auto; }
+.pane-label { font-size: 10px; font-family: var(--mono); letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+
+/* State machine visual */
+.state-machine {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+.state-flow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.state-node {
+  flex: 1;
+  padding: 12px 6px;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 10px;
+  font-family: var(--mono);
+  letter-spacing: 1.8px;
+  border: 1.5px solid;
+  transition: all .35s cubic-bezier(.22,.68,0,1.2);
+}
+.state-node.idle-n    { background: rgba(85,96,128,.12); border-color: rgba(85,96,128,.3);    color: var(--muted2); }
+.state-node.think-n   { background: rgba(95,124,255,.1);  border-color: rgba(95,124,255,.3);   color: #a5b4fc; }
+.state-node.act-n     { background: rgba(31,214,160,.1);  border-color: rgba(31,214,160,.3);   color: var(--green); }
+
+.state-node.is-active {
+  transform: scale(1.1);
+  box-shadow: 0 0 20px rgba(95,124,255,.25);
+}
+.state-node.idle-n.is-active  { box-shadow: 0 0 20px rgba(85,96,128,.3); }
+.state-node.act-n.is-active   { box-shadow: 0 0 20px rgba(31,214,160,.3); }
+
+.state-arrow { color: var(--muted); font-size: 16px; flex-shrink: 0; }
+
+/* Metrics grid */
+.metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.metric {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  text-align: center;
+}
+.metric-val   { font-size: 26px; font-weight: 700; font-family: var(--mono); color: var(--accent2); line-height: 1; }
+.metric-label { font-size: 10px; font-family: var(--mono); color: var(--muted); margin-top: 5px; letter-spacing: 1px; }
+
+/* Last tool */
+.last-tool-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 13px 15px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted2);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: border-color .3s;
+}
+.last-tool-card.has-tool { border-color: rgba(245,166,35,.3); color: var(--amber); }
+
+/* ── MEMORY TAB ── */
+.memory-pane {
+  padding: 18px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.memory-entry {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 11px 13px;
+  font-size: 12px;
+  font-family: var(--mono);
+  line-height: 1.6;
+  animation: eventIn .2s ease;
+}
+.memory-entry .role-tag {
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.memory-entry.mem-user  .role-tag { color: var(--accent2); }
+.memory-entry.mem-agent .role-tag { color: var(--green); }
+.memory-entry .mem-text { color: var(--muted2); word-break: break-word; }
+
+/* ── SCROLLBARS ── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+</style>
 </head>
 <body>
 
+<!-- ── HEADER ── -->
 <header>
-    <div class="status-dot"></div>
-    <h1>AI Agent Workflow Manager</h1>
+  <div class="header-brand">
+    <div class="logo"></div>
+    <div class="brand-text">
+      <h1>AI Agent <em>Workflow</em> Manager</h1>
+      <p>autonomous · tool-enabled · stateful</p>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="pill">turns <span class="val" id="hTurns">0</span></div>
+    <div class="pill">tools <span class="val" id="hTools">0</span></div>
+    <div class="pill">events <span class="val" id="hEvents">0</span></div>
+    <div class="online-badge"><div class="dot"></div>online</div>
+    <button class="theme-toggle" id="themeToggle" title="Toggle dark/light mode">🌙</button>
+  </div>
 </header>
 
-<div class="main">
-    <!-- Chat Panel -->
-    <div class="chat-panel">
-        <div class="messages" id="messages">
-            <div class="message agent">
-                <div class="label">Agent</div>
-                Hello! I'm your AI agent. I can calculate math, read files, crawl websites, and send emails. What do you need?
-            </div>
+<!-- ── WORKSPACE ── -->
+<div class="workspace">
+
+  <!-- LEFT SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Available Tools</div>
+
+      <div class="tool-card" id="tool-calculator">
+        <div class="tool-icon">🧮</div>
+        <div class="tool-info">
+          <div class="tool-name">Calculator</div>
+          <div class="tool-desc">math &amp; compute</div>
         </div>
-        <div class="input-area">
-            <input type="text" id="userInput" placeholder="Type a message..." />
-            <button id="sendBtn" onclick="sendMessage()">Send</button>
+        <div class="tool-led"></div>
+      </div>
+
+      <div class="tool-card" id="tool-filereader">
+        <div class="tool-icon">📄</div>
+        <div class="tool-info">
+          <div class="tool-name">FileReader</div>
+          <div class="tool-desc">read &amp; parse</div>
         </div>
+        <div class="tool-led"></div>
+      </div>
+
+      <div class="tool-card" id="tool-webcrawler">
+        <div class="tool-icon">🌐</div>
+        <div class="tool-info">
+          <div class="tool-name">WebCrawler</div>
+          <div class="tool-desc">fetch &amp; crawl</div>
+        </div>
+        <div class="tool-led"></div>
+      </div>
+
+      <div class="tool-card" id="tool-emailsender">
+        <div class="tool-icon">📧</div>
+        <div class="tool-info">
+          <div class="tool-name">EmailSender</div>
+          <div class="tool-desc">compose &amp; send</div>
+        </div>
+        <div class="tool-led"></div>
+      </div>
     </div>
 
-    <!-- Activity Panel -->
-    <div class="activity-panel">
-        <div class="activity-header">⚡ Agent Activity</div>
-        <div class="events" id="events">
-            <div class="empty-state" id="emptyState">
-                Agent activity will appear here when you send a message
-            </div>
-        </div>
-        <div class="thinking-indicator" id="thinkingIndicator">
-            <span class="event-icon">🧠</span>
-            <span>Thinking<span class="dots"><span>.</span><span>.</span><span>.</span></span></span>
-        </div>
+    <div class="sidebar-section" style="flex:1">
+      <div class="sidebar-label">Quick Prompts</div>
+      <button class="quick-btn" onclick="quickSend('Calculate 15% tip on $84.50')">
+        <span class="arrow">›</span> tip calculator
+      </button>
+      <button class="quick-btn" onclick="quickSend('Crawl https://example.com and summarize')">
+        <span class="arrow">›</span> crawl a site
+      </button>
+      <button class="quick-btn" onclick="quickSend('Read the file config.json')">
+        <span class="arrow">›</span> read a file
+      </button>
+      <button class="quick-btn" onclick="quickSend('What tools do you have?')">
+        <span class="arrow">›</span> capabilities
+      </button>
+      <button class="quick-btn" onclick="quickSend('Send an email to hello@example.com about the quarterly report')">
+        <span class="arrow">›</span> send email
+      </button>
     </div>
+  </aside>
+
+  <!-- CHAT PANEL -->
+  <div class="chat-panel">
+    <div class="messages" id="messages">
+      <div class="message agent">
+        <div class="avatar">AI</div>
+        <div class="bubble-wrap">
+          <div class="bubble-meta">Agent · now</div>
+          <div class="bubble">
+            Hello! I'm your autonomous AI agent with access to four tools:
+            <strong>Calculator</strong>, <strong>FileReader</strong>,
+            <strong>WebCrawler</strong>, and <strong>EmailSender</strong>.<br><br>
+            What would you like me to work on today?
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="suggestions" id="suggestions">
+      <div class="chip" onclick="quickSend('What is 2847 × 391?')">2847 × 391</div>
+      <div class="chip" onclick="quickSend('Explain your capabilities in detail')">capabilities</div>
+      <div class="chip" onclick="quickSend('Read the file config.txt')">read config.txt</div>
+      <div class="chip" onclick="quickSend('Crawl https://example.com')">crawl example.com</div>
+      <div class="chip" onclick="quickSend('Send a status email')">send email</div>
+    </div>
+
+    <div class="input-area">
+      <div class="input-row">
+        <div class="textarea-wrap">
+          <textarea id="userInput" placeholder="Type a task for the agent… (Enter to send, Shift+Enter for newline)" rows="1"></textarea>
+        </div>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </button>
+      </div>
+      <div class="input-hint">⏎ send &nbsp;·&nbsp; ⇧⏎ newline &nbsp;·&nbsp; state machine &amp; memory in right panel →</div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <aside class="right-panel">
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('events', this)">Events</div>
+      <div class="tab" onclick="switchTab('state', this)">State</div>
+      <div class="tab" onclick="switchTab('memory', this)">Memory</div>
+    </div>
+
+    <div class="tab-content">
+
+      <!-- EVENTS TAB -->
+      <div class="tab-pane active" id="tab-events">
+        <div class="log-toolbar">
+          <span class="log-count" id="logCount">0 events</span>
+          <button class="clear-btn" onclick="clearEvents()">clear</button>
+        </div>
+        <div class="events-log" id="eventsLog">
+          <div class="empty-state" id="emptyEvents">
+            <div class="empty-icon">⚡</div>
+            <div class="empty-text">Agent events will<br>stream here in real time</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATE TAB -->
+      <div class="tab-pane" id="tab-state">
+        <div class="state-pane">
+          <div>
+            <div class="pane-label">State Machine</div>
+            <div class="state-machine">
+              <div class="state-flow">
+                <div class="state-node idle-n is-active" id="sn-idle">IDLE</div>
+                <div class="state-arrow">→</div>
+                <div class="state-node think-n" id="sn-think">THINK</div>
+                <div class="state-arrow">→</div>
+                <div class="state-node act-n" id="sn-act">ACT</div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="pane-label">Session Metrics</div>
+            <div class="metrics">
+              <div class="metric">
+                <div class="metric-val" id="mTurns">0</div>
+                <div class="metric-label">turns</div>
+              </div>
+              <div class="metric">
+                <div class="metric-val" id="mTools">0</div>
+                <div class="metric-label">tool calls</div>
+              </div>
+              <div class="metric">
+                <div class="metric-val" id="mEvents">0</div>
+                <div class="metric-label">events</div>
+              </div>
+              <div class="metric">
+                <div class="metric-val" id="mState" style="font-size:14px;padding-top:6px">IDLE</div>
+                <div class="metric-label">current state</div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="pane-label">Last Tool Used</div>
+            <div class="last-tool-card" id="lastToolCard">
+              <span style="font-size:18px">🔧</span>
+              <span id="lastToolText">None yet</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MEMORY TAB -->
+      <div class="tab-pane" id="tab-memory">
+        <div class="memory-pane" id="memoryPane">
+          <div class="empty-state">
+            <div class="empty-icon">🧠</div>
+            <div class="empty-text">Conversation memory<br>appears after first message</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
 </div>
 
 <script>
-    const input = document.getElementById('userInput');
-    const sendBtn = document.getElementById('sendBtn');
-    const messages = document.getElementById('messages');
-    const events = document.getElementById('events');
-    const thinkingIndicator = document.getElementById('thinkingIndicator');
-    const emptyState = document.getElementById('emptyState');
+// ── Theme Toggle ──
+function initTheme() {
+  const saved = localStorage.getItem('theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  updateThemeIcon(saved);
+}
 
-    input.addEventListener('keydown', e => {
-        if (e.key === 'Enter') sendMessage();
+function updateThemeIcon(theme) {
+  const btn = document.getElementById('themeToggle');
+  btn.textContent = theme === 'dark' ? '☀️' : '🌙';
+}
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme') || 'dark';
+  const next = current === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+  updateThemeIcon(next);
+}
+
+// Initialize theme on page load
+initTheme();
+
+const $id = id => document.getElementById(id);
+const inp = $id('userInput');
+const sendBtn = $id('sendBtn');
+const messagesEl = $id('messages');
+const eventsLog = $id('eventsLog');
+const suggestionsEl = $id('suggestions');
+
+let turns = 0, tools = 0, events = 0;
+let memoryLog = [];
+
+// ── Textarea auto-resize ──
+inp.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+});
+inp.addEventListener('input', () => {
+  inp.style.height = 'auto';
+  inp.style.height = Math.min(inp.scrollHeight, 130) + 'px';
+});
+
+// ── Tab switch ──
+function switchTab(name, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  $id('tab-' + name).classList.add('active');
+}
+
+// ── Quick send ──
+function quickSend(text) {
+  inp.value = text;
+  inp.dispatchEvent(new Event('input'));
+  sendMessage();
+}
+
+// ── State machine ──
+function setState(state) {
+  ['sn-idle','sn-think','sn-act'].forEach(id => $id(id).classList.remove('is-active'));
+  const map = { IDLE:'sn-idle', THINKING:'sn-think', ACTING:'sn-act' };
+  if (map[state]) $id(map[state]).classList.add('is-active');
+  $id('mState').textContent = state === 'THINKING' ? 'THINK' : state;
+}
+
+// ── Metrics ──
+function updateMetrics() {
+  $id('hTurns').textContent  = turns;
+  $id('hTools').textContent  = tools;
+  $id('hEvents').textContent = events;
+  $id('mTurns').textContent  = turns;
+  $id('mTools').textContent  = tools;
+  $id('mEvents').textContent = events;
+  $id('logCount').textContent = events + ' event' + (events !== 1 ? 's' : '');
+}
+
+// ── Tool detection ──
+const toolMap = {
+  calculator:  'tool-calculator',
+  filereader:  'tool-filereader',
+  webcrawler:  'tool-webcrawler',
+  emailsender: 'tool-emailsender',
+};
+function detectTool(evText) {
+  const lower = evText.toLowerCase();
+  for (const [key, id] of Object.entries(toolMap)) {
+    if (lower.includes(key)) {
+      const card = $id(id);
+      if (card) {
+        card.classList.add('firing');
+        setTimeout(() => card.classList.remove('firing'), 1600);
+      }
+      tools++;
+      const ltc = $id('lastToolCard');
+      ltc.classList.add('has-tool');
+      $id('lastToolText').textContent = key;
+      updateMetrics();
+      return;
+    }
+  }
+}
+
+// ── Event type classifier ──
+function classifyEvent(text) {
+  if (/thinking|THINKING/i.test(text))        return ['thinking', '🧠'];
+  if (/acting|ACTING/i.test(text))            return ['acting',   '⚡'];
+  if (/tool|Tool|Using|using/i.test(text))    return ['tool',     '🔧'];
+  if (/user said|User/i.test(text))           return ['user_ev',  '💬'];
+  if (/result|Result|complete|Complete/i.test(text)) return ['result', '✅'];
+  if (/idle|IDLE/i.test(text))                return ['idle',     '💤'];
+  return ['idle', 'ℹ'];
+}
+
+// ── Time ──
+function ts() {
+  return new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+}
+
+// ── Add event card ──
+function addEvent(text) {
+  const empty = $id('emptyEvents');
+  if (empty) empty.remove();
+
+  events++;
+  updateMetrics();
+
+  const [cls, icon] = classifyEvent(text);
+  const div = document.createElement('div');
+  div.className = 'event ' + cls;
+  div.innerHTML = `
+    <div class="event-ico">${icon}</div>
+    <div class="event-body">
+      <div class="event-text">${text}</div>
+      <div class="event-time">${ts()}</div>
+    </div>`;
+  eventsLog.appendChild(div);
+  eventsLog.scrollTop = eventsLog.scrollHeight;
+}
+
+// ── Clear events ──
+function clearEvents() {
+  eventsLog.innerHTML = '';
+  events = 0;
+  updateMetrics();
+}
+
+// ── Add chat message ──
+function addMessage(role, html) {
+  const div = document.createElement('div');
+  div.className = 'message ' + role;
+  div.innerHTML = `
+    <div class="avatar">${role === 'user' ? 'ME' : 'AI'}</div>
+    <div class="bubble-wrap">
+      <div class="bubble-meta">${role === 'user' ? 'You' : 'Agent'} · ${ts()}</div>
+      <div class="bubble">${html}</div>
+    </div>`;
+  messagesEl.appendChild(div);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+// ── Typing indicator ──
+function showTyping() {
+  const div = document.createElement('div');
+  div.className = 'message agent';
+  div.id = 'typing-msg';
+  div.innerHTML = `
+    <div class="avatar">AI</div>
+    <div class="bubble-wrap">
+      <div class="bubble-meta">Agent · thinking</div>
+      <div class="typing-indicator">
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+      </div>
+    </div>`;
+  messagesEl.appendChild(div);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+  return div;
+}
+
+// ── Memory ──
+function updateMemory() {
+  const pane = $id('memoryPane');
+  if (!memoryLog.length) return;
+  pane.innerHTML = memoryLog.slice(-12).map(m => `
+    <div class="memory-entry mem-${m.role}">
+      <div class="role-tag">${m.role}</div>
+      <div class="mem-text">${m.text}</div>
+    </div>`).join('');
+}
+
+// ── Theme Toggle Event ──
+$id('themeToggle').addEventListener('click', toggleTheme);
+
+// ── Send ──
+async function sendMessage() {
+  const text = inp.value.trim();
+  if (!text) return;
+
+  inp.value = '';
+  inp.style.height = 'auto';
+  sendBtn.disabled = true;
+  suggestionsEl.style.display = 'none';
+
+  turns++;
+  updateMetrics();
+
+  addMessage('user', text);
+  memoryLog.push({ role: 'user', text: text.slice(0, 70) + (text.length > 70 ? '…' : '') });
+  updateMemory();
+
+  setState('THINKING');
+  addEvent('State → THINKING');
+
+  const typing = showTyping();
+
+  try {
+    const res = await fetch('/chat', { method: 'POST', body: text });
+    const data = await res.json();
+    typing.remove();
+
+    data.events.forEach((ev, i) => {
+      setTimeout(() => {
+        addEvent(ev);
+        detectTool(ev);
+        if (/acting|ACTING/i.test(ev))  setState('ACTING');
+        if (/idle|IDLE/i.test(ev))      setState('IDLE');
+      }, i * 130);
     });
 
-    function getEventStyle(event) {
-        if (event.includes('THINKING')) return ['thinking', '🧠'];
-        if (event.includes('ACTING'))   return ['acting',   '⚡'];
-        if (event.includes('tool') || event.includes('Tool') || event.includes('Using')) return ['tool', '🔧'];
-        if (event.includes('User said')) return ['user', '💬'];
-        if (event.includes('IDLE'))     return ['idle',    '💤'];
-        if (event.includes('result') || event.includes('Result')) return ['acting', '✅'];
-        return ['idle', 'ℹ️'];
-    }
+    setTimeout(() => {
+      setState('IDLE');
+      addEvent('State → IDLE');
+      addMessage('agent', data.response);
+      memoryLog.push({ role: 'agent', text: data.response.slice(0, 70) + (data.response.length > 70 ? '…' : '') });
+      updateMemory();
+      sendBtn.disabled = false;
+      inp.focus();
+    }, data.events.length * 130 + 200);
 
-    async function sendMessage() {
-        const text = input.value.trim();
-        if (!text) return;
-
-        input.value = '';
-        sendBtn.disabled = true;
-
-        // show user message
-        addMessage('user', text);
-
-        // clear events, show thinking
-        events.innerHTML = '';
-        thinkingIndicator.classList.add('visible');
-
-        try {
-            const res = await fetch('/chat', {
-                method: 'POST',
-                body: text
-            });
-
-            const data = await res.json();
-
-            // hide thinking
-            thinkingIndicator.classList.remove('visible');
-
-            // show events
-            data.events.forEach((event, i) => {
-                setTimeout(() => addEvent(event), i * 150);
-            });
-
-            // show agent response
-            setTimeout(() => {
-                addMessage('agent', data.response);
-            }, data.events.length * 150 + 200);
-
-        } catch (err) {
-            thinkingIndicator.classList.remove('visible');
-            addEvent('Error: ' + err.message);
-            addMessage('agent', 'Sorry, something went wrong.');
-        }
-
-        sendBtn.disabled = false;
-        input.focus();
-    }
-
-    function addMessage(role, text) {
-        const div = document.createElement('div');
-        div.className = `message ${role}`;
-        div.innerHTML = `<div class="label">${role === 'user' ? 'You' : 'Agent'}</div>${text}`;
-        messages.appendChild(div);
-        messages.scrollTop = messages.scrollHeight;
-    }
-
-    function addEvent(event) {
-        const [cls, icon] = getEventStyle(event);
-        const div = document.createElement('div');
-        div.className = `event ${cls}`;
-        div.innerHTML = `<span class="event-icon">${icon}</span><span>${event}</span>`;
-        events.appendChild(div);
-        events.scrollTop = events.scrollHeight;
-    }
+  } catch (err) {
+    typing.remove();
+    setState('IDLE');
+    addEvent('ERROR: ' + err.message);
+    addMessage('agent', '⚠ Something went wrong. Please try again.');
+    sendBtn.disabled = false;
+    inp.focus();
+  }
+}
 </script>
 </body>
 </html>

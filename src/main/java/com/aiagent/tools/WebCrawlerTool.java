@@ -7,6 +7,16 @@ import org.jsoup.select.Elements;
 public class WebCrawlerTool implements Tool {
 
     @Override
+    public String getName() {
+        return "web_crawler";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Crawls a web page and extracts text content. Input: URL (must start with http or https)";
+    }
+
+    @Override
     public String execute(String input) {
         if (input == null || !input.startsWith("http")) {
             return "System Error: Invalid URL. URL must start with http or https.";
